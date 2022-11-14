@@ -6,8 +6,8 @@ data "aws_caller_identity" "current" {}
 
 locals {
   name             = "complete-postgresql"
-  region           = "eu-west-1"
-  region2          = "eu-central-1"
+  region           = "us-east-1"
+  region2          = "us-west-1"
   current_identity = data.aws_caller_identity.current.arn
   tags = {
     Owner       = "user"
@@ -73,7 +73,7 @@ module "db" {
   engine_version       = "14.1"
   family               = "postgres14" # DB parameter group
   major_engine_version = "14"         # DB option group
-  instance_class       = "db.t4g.large"
+  instance_class       = "db.t3.medium"
 
   allocated_storage     = 20
   max_allocated_storage = 100
@@ -126,50 +126,50 @@ module "db" {
   }
 }
 
-module "db_default" {
-  source = "../../"
+# module "db_default" {
+#   source = "../../"
 
-  identifier                     = "${local.name}-default"
-  instance_use_identifier_prefix = true
+#   identifier                     = "${local.name}-default"
+#   instance_use_identifier_prefix = true
 
-  create_db_option_group    = false
-  create_db_parameter_group = false
+#   create_db_option_group    = false
+#   create_db_parameter_group = false
 
-  # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
-  engine               = "postgres"
-  engine_version       = "14.1"
-  family               = "postgres14" # DB parameter group
-  major_engine_version = "14"         # DB option group
-  instance_class       = "db.t4g.large"
+#   # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
+#   engine               = "postgres"
+#   engine_version       = "14.1"
+#   family               = "postgres14" # DB parameter group
+#   major_engine_version = "14"         # DB option group
+#   instance_class       = "db.t3.medium"
 
-  allocated_storage = 20
+#   allocated_storage = 20
 
-  # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
-  # "Error creating DB Instance: InvalidParameterValue: MasterUsername
-  # user cannot be used as it is a reserved word used by the engine"
-  db_name  = "completePostgresql"
-  username = "complete_postgresql"
-  port     = 5432
+#   # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
+#   # "Error creating DB Instance: InvalidParameterValue: MasterUsername
+#   # user cannot be used as it is a reserved word used by the engine"
+#   db_name  = "completePostgresql"
+#   username = "complete_postgresql"
+#   port     = 5432
 
-  db_subnet_group_name   = module.vpc.database_subnet_group
-  vpc_security_group_ids = [module.security_group.security_group_id]
+#   db_subnet_group_name   = module.vpc.database_subnet_group
+#   vpc_security_group_ids = [module.security_group.security_group_id]
 
-  maintenance_window      = "Mon:00:00-Mon:03:00"
-  backup_window           = "03:00-06:00"
-  backup_retention_period = 0
+#   maintenance_window      = "Mon:00:00-Mon:03:00"
+#   backup_window           = "03:00-06:00"
+#   backup_retention_period = 0
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
-module "db_disabled" {
-  source = "../../"
+# module "db_disabled" {
+#   source = "../../"
 
-  identifier = "${local.name}-disabled"
+#   identifier = "${local.name}-disabled"
 
-  create_db_instance        = false
-  create_db_parameter_group = false
-  create_db_option_group    = false
-}
+#   create_db_instance        = false
+#   create_db_parameter_group = false
+#   create_db_option_group    = false
+# }
 
 ################################################################################
 # RDS Automated Backups Replication Module
